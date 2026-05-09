@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@layer utilities {
+  .no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+  }
+  
+  .glass {
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+  }
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Vazirmatn', sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+.window-container {
+  min-width: 300px;
+  min-height: 250px;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.window-container.maximized {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.window-container.dragging {
+  transition: none !important;
+  opacity: 0.95;
+}
+
+.desktop-icon {
+  transition: background-color 0.2s, border-color 0.2s;
+}
+.desktop-icon.dragging {
+  transition: none;
+  opacity: 0.7;
+  z-index: 50;
+}
