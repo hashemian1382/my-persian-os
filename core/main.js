@@ -8,6 +8,7 @@ import { PaintApp } from '../apps/paint.js';
 import { CalculatorApp } from '../apps/calculator.js';
 import { SettingsApp } from '../apps/settings.js';
 import { XoApp } from '../apps/xo.js';
+import { ExplorerApp } from '../apps/explorer.js';
 
 class OS {
     constructor() {
@@ -21,7 +22,8 @@ class OS {
             'paint': PaintApp,
             'calculator': CalculatorApp,
             'settings': SettingsApp,
-            'xo': XoApp
+            'xo': XoApp,
+            'explorer': ExplorerApp
         };
         
         this.initTaskbar();
@@ -32,12 +34,12 @@ class OS {
         const AppClass = this.appRegistry[appId];
         if (AppClass) {
             const appInstance = new AppClass();
-            if (fileData && appInstance.loadFile) {
+            if (appInstance.loadFile && fileData) {
                 appInstance.loadFile(fileData);
             }
             this.wm.createWindow({
-                title: fileData ? `${appInstance.title} - ${fileData.name}` : appInstance.title,
-                icon: appInstance.icon,
+                title: fileData && appId !== 'explorer' ? `${appInstance.title} - ${fileData.name}` : (fileData ? fileData.name : appInstance.title),
+                icon: fileData && appId === 'explorer' ? 'folder-open' : appInstance.icon,
                 width: appInstance.width,
                 height: appInstance.height,
                 render: () => appInstance.render()

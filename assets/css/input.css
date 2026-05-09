@@ -50,7 +50,7 @@ body {
   opacity: 0.95;
 }
 
-.desktop-icon {
+.desktop-icon, .explorer-icon {
   transition: background-color 0.2s, border-color 0.2s;
 }
 .desktop-icon.dragging {

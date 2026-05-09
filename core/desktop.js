@@ -16,9 +16,17 @@ export class Desktop {
 
     setupContextMenu() {
         this.desktopEl.addEventListener('contextmenu', (e) => {
-            if(e.target.closest('.window-container') || e.target.closest('.desktop-icon')) return;
+            if(e.target.closest('.window-container')) return;
             e.preventDefault();
-            this.showContextMenu(e.clientX, e.clientY);
+            
+            const iconEl = e.target.closest('.desktop-icon');
+            if (iconEl) {
+                const fileId = iconEl.dataset.id;
+                const file = this.fs.findNode(this.fs.tree, fileId);
+                this.showIconContextMenu(e.clientX, e.clientY, file);
+            } else {
+                this.showDesktopContextMenu(e.clientX, e.clientY);
+            }
         });
 
         document.addEventListener('click', () => {
@@ -26,7 +34,7 @@ export class Desktop {
         });
     }
 
-    showContextMenu(x, y) {
+    showDesktopContextMenu(x, y) {
         this.contextMenuEl.innerHTML = `
             <div class="py-1">
                 <button id="ctx-new-folder" class="w-full text-right px-4 py-2 hover:bg-gray-100 flex items-center gap-3 text-sm transition">
@@ -45,21 +53,61 @@ export class Desktop {
         this.contextMenuEl.style.left = `${x}px`;
         this.contextMenuEl.style.top = `${y}px`;
         this.contextMenuEl.classList.remove('hidden');
+        window.lucide.createIcons();
 
-        if (window.lucide) window.lucide.createIcons();
+        document.getElementById('ctx-new-folder').onclick = () => { this.fs.createFolder('desktop', 'پوشه جدید'); this.renderIcons(); };
+        document.getElementById('ctx-new-text').onclick = () => { this.fs.createFile('desktop', 'سند جدید', 'متن'); this.renderIcons(); };
+        document.getElementById('ctx-new-paint').onclick = () => { this.fs.createFile('desktop', 'طرح جدید', 'نقش'); this.renderIcons(); };
+    }
 
-        document.getElementById('ctx-new-folder').onclick = () => {
-            this.fs.createFolder('desktop', 'پوشه جدید');
-            this.renderIcons();
+    showIconContextMenu(x, y, file) {
+        this.contextMenuEl.innerHTML = `
+            <div class="py-1">
+                <button id="ctx-open" class="w-full text-right px-4 py-2 hover:bg-gray-100 flex items-center gap-3 text-sm transition">
+                    <i data-lucide="external-link" class="w-4 h-4 text-blue-500"></i> باز کردن
+                </button>
+                <div class="h-[1px] bg-gray-200/50 my-1 mx-2"></div>
+                <button id="ctx-rename" class="w-full text-right px-4 py-2 hover:bg-gray-100 flex items-center gap-3 text-sm transition">
+                    <i data-lucide="edit-2" class="w-4 h-4 text-gray-600"></i> تغییر نام
+                </button>
+                <button id="ctx-delete" class="w-full text-right px-4 py-2 hover:bg-red-50 flex items-center gap-3 text-sm transition text-red-600">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i> حذف
+                </button>
+            </div>
+        `;
+        
+        this.contextMenuEl.style.left = `${x}px`;
+        this.contextMenuEl.style.top = `${y}px`;
+        this.contextMenuEl.classList.remove('hidden');
+        window.lucide.createIcons();
+
+        document.getElementById('ctx-open').onclick = () => this.openFile(file);
+        
+        document.getElementById('ctx-rename').onclick = () => {
+            const newName = prompt('نام جدید را وارد کنید:', file.name);
+            if (newName && newName.trim() !== '') {
+                this.fs.renameNode(file.id, newName.trim());
+                this.renderIcons();
+            }
         };
-        document.getElementById('ctx-new-text').onclick = () => {
-            this.fs.createFile('desktop', 'سند جدید', 'متن');
-            this.renderIcons();
+
+        document.getElementById('ctx-delete').onclick = () => {
+            if (confirm(`آیا از حذف "${file.name}" اطمینان دارید؟`)) {
+                this.fs.deleteNode(file.id);
+                this.renderIcons();
+            }
         };
-        document.getElementById('ctx-new-paint').onclick = () => {
-            this.fs.createFile('desktop', 'طرح جدید', 'نقش');
-            this.renderIcons();
-        };
+    }
+
+    openFile(file) {
+        if(file.type === 'shortcut') {
+            this.openAppCallback(file.appId);
+        } else if (file.type === 'folder') {
+            this.openAppCallback('explorer', file);
+        } else if (file.type === 'file') {
+            if(file.extension === 'متن') this.openAppCallback('notepad', file);
+            if(file.extension === 'نقش') this.openAppCallback('paint', file);
+        }
     }
 
     renderIcons() {
@@ -69,6 +117,7 @@ export class Desktop {
         files.forEach(file => {
             const iconEl = document.createElement('div');
             iconEl.className = 'desktop-icon absolute w-20 p-2 flex flex-col items-center gap-1 rounded-xl hover:bg-white/10 border border-transparent hover:border-white/20 cursor-pointer group';
+            iconEl.dataset.id = file.id;
             
             iconEl.style.left = `${file.x || 0}px`;
             iconEl.style.top = `${file.y || 0}px`;
@@ -84,8 +133,9 @@ export class Desktop {
             const displayName = file.type === 'file' ? `${file.name}.${file.extension}` : file.name;
 
             iconEl.innerHTML = `
-                <div class="w-12 h-12 rounded-2xl ${bgIcon} shadow-lg flex items-center justify-center group-hover:scale-105 transition duration-200 border border-white/20">
+                <div class="w-12 h-12 rounded-2xl ${bgIcon} shadow-lg flex items-center justify-center group-hover:scale-105 transition duration-200 border border-white/20 relative">
                     <i data-lucide="${file.icon}" class="w-6 h-6 ${iconColor}"></i>
+                    ${file.type === 'shortcut' ? '<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5"><i data-lucide="arrow-up-right" class="w-3 h-3 text-black"></i></div>' : ''}
                 </div>
                 <span class="text-white text-[11px] text-center drop-shadow-md font-medium truncate w-full px-1" dir="ltr" style="text-align: center;">${displayName}</span>
             `;
@@ -93,12 +143,7 @@ export class Desktop {
             this.setupIconDrag(iconEl, file);
 
             iconEl.addEventListener('dblclick', () => {
-                if(file.type === 'shortcut') {
-                    this.openAppCallback(file.appId);
-                } else if (file.type === 'file') {
-                    if(file.extension === 'متن') this.openAppCallback('notepad', file);
-                    if(file.extension === 'نقش') this.openAppCallback('paint', file);
-                }
+                this.openFile(file);
             });
 
             this.iconsContainer.appendChild(iconEl);
@@ -124,8 +169,9 @@ export class Desktop {
                 isDragging = false;
                 iconEl.classList.remove('dragging');
                 document.body.classList.remove('no-select');
-                file.x = parseInt(iconEl.style.left);
-                file.y = parseInt(iconEl.style.top);
+                const newX = parseInt(iconEl.style.left);
+                const newY = parseInt(iconEl.style.top);
+                this.fs.updateCoordinates(file.id, newX, newY);
             }
             document.removeEventListener('mousemove', onMouseMove);
             document.removeEventListener('mouseup', onMouseUp);
