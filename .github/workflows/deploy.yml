@@ -24,17 +24,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-
-      - name: Install Tailwind CSS
-        run: npm install -g tailwindcss
-
-      - name: Build CSS
-        run: npx tailwindcss -i ./assets/css/input.css -o ./assets/css/style.css --minify
-
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
