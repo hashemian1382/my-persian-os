@@ -133,9 +133,11 @@ export class Desktop {
             const displayName = file.type === 'file' ? `${file.name}.${file.extension}` : file.name;
 
             iconEl.innerHTML = `
-                ' : ''}
-                
-                ${displayName}</span>
+                <div class="w-12 h-12 rounded-2xl ${bgIcon} shadow-lg flex items-center justify-center group-hover:scale-110 transition-transform duration-200 border border-white/30 relative">
+                    <i data-lucide="${file.icon}" class="w-6 h-6 ${iconColor}"></i>
+                    ${file.type === 'shortcut' ? '<div class="absolute -bottom-1 -right-1 bg-white rounded-full p-0.5 shadow-sm"><i data-lucide="arrow-up-right" class="w-3 h-3 text-gray-800"></i></div>' : ''}
+                </div>
+                <span class="text-white text-[12px] text-center drop-shadow-lg font-semibold w-full px-1 line-clamp-2 leading-tight mt-1" dir="rtl">${displayName}</span>
             `;
 
             this.setupIconDrag(iconEl, file);
