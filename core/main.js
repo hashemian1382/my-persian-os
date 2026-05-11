@@ -55,8 +55,8 @@ class OS {
             const date = now.toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' });
             
             clockEl.innerHTML = `
-                <span class="font-bold text-[15px] tracking-wide drop-shadow-md leading-tight">${time}
-                ${date}</span>
+                <span class="font-bold text-[15px] tracking-wide drop-shadow-md leading-tight">${time}</span>
+                <span class="text-[11px] text-gray-300 opacity-90 mt-0.5">${date}</span>
             `;
         };
         updateClock();
@@ -75,9 +75,9 @@ class OS {
             btn.className = 'flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-blue-50/80 transition group active:scale-95 border border-transparent hover:border-blue-100';
             btn.innerHTML = `
                 <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:shadow-md group-hover:-translate-y-1 transition duration-200">
-                    <i data-lucide="${appInstance.icon}" class="w-6 h-6">
-                
-                ${appInstance.title.split(' ')[0]}</span>
+                    <i data-lucide="${appInstance.icon}" class="w-6 h-6"></i>
+                </div>
+                <span class="text-[11px] font-bold text-gray-700 truncate w-full text-center">${appInstance.title.split(' ')[0]}</span>
             `;
             btn.onclick = () => {
                 this.openApp(appId);

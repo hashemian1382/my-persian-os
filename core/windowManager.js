@@ -24,17 +24,20 @@ export class WindowManager {
         winEl.dataset.isMaximized = 'false';
 
         winEl.innerHTML = `
-            
-                
-                    
-                    
-                    
-                    
-                
-            
-            
-            
-            
+            <div class="window-header bg-gray-50/60 backdrop-blur-md h-12 flex items-center justify-between px-4 cursor-move no-select border-b border-gray-200/60">
+                <div class="flex items-center gap-3 font-bold text-gray-700">
+                    <i data-lucide="${appConfig.icon}" class="w-5 h-5 text-blue-600"></i>
+                    <span class="text-[13.5px]">${appConfig.title}</span>
+                </div>
+                <div class="flex gap-2.5" dir="ltr">
+                    <button class="win-close-btn w-3.5 h-3.5 rounded-full bg-red-400 hover:bg-red-500 border border-red-500/30 shadow-sm transition active:scale-90"></button>
+                    <button class="win-min-btn w-3.5 h-3.5 rounded-full bg-yellow-400 hover:bg-yellow-500 border border-yellow-500/30 shadow-sm transition active:scale-90"></button>
+                    <button class="win-max-btn w-3.5 h-3.5 rounded-full bg-green-400 hover:bg-green-500 border border-green-500/30 shadow-sm transition active:scale-90"></button>
+                </div>
+            </div>
+            <div class="window-body flex-1 bg-white/80 relative overflow-hidden flex flex-col">
+            </div>
+            <div class="resize-handle absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50"></div>
         `;
 
         this.windowArea.appendChild(winEl);
@@ -65,8 +68,8 @@ export class WindowManager {
         item.className = 'w-12 h-12 rounded-xl hover:bg-white/20 bg-white/10 flex items-center justify-center transition shadow-sm border border-white/10 relative group active:scale-95';
         item.title = appConfig.title;
         item.innerHTML = `
-            <i data-lucide="${appConfig.icon}" class="w-6 h-6 group-hover:-translate-y-1 drop-shadow-md transition duration-200">
-            
+            <i data-lucide="${appConfig.icon}" class="w-6 h-6 group-hover:-translate-y-1 drop-shadow-md transition duration-200"></i>
+            <div class="absolute bottom-1 w-1.5 h-1.5 bg-white rounded-full shadow-sm"></div>
         `;
         
         item.addEventListener('click', () => {
