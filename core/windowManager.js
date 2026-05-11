@@ -12,34 +12,38 @@ export class WindowManager {
         
         const winEl = document.createElement('div');
         winEl.id = winId;
-        winEl.className = `window-container absolute bg-white/95 glass rounded-xl shadow-[0_20px_50px_rgba(0,0,0,0.3)] flex flex-col border border-white/60 pointer-events-auto overflow-hidden`;
+        winEl.className = `window-container absolute bg-white/95 glass rounded-xl shadow-[0_20px_60px_rgba(0,0,0,0.4)] flex flex-col border border-white/60 pointer-events-auto overflow-hidden`;
         winEl.style.width = appConfig.width || '600px';
         winEl.style.height = appConfig.height || '450px';
         winEl.style.top = '10%';
         winEl.style.left = '15%';
         winEl.style.zIndex = this.activeZIndex;
+        winEl.style.transform = 'scale(0.95)';
+        winEl.style.opacity = '0';
 
         winEl.dataset.isMaximized = 'false';
 
         winEl.innerHTML = `
-            <div class="window-header bg-gray-50/50 h-12 flex items-center justify-between px-4 cursor-move no-select border-b border-gray-200/50">
-                <div class="flex items-center gap-3 font-semibold text-gray-700">
-                    <i data-lucide="${appConfig.icon}" class="w-5 h-5 text-blue-600"></i>
-                    <span class="text-[13px]">${appConfig.title}</span>
-                </div>
-                <div class="flex gap-2" dir="ltr">
-                    <button class="win-close-btn w-3.5 h-3.5 rounded-full bg-red-400 hover:bg-red-500 border border-red-500/20 shadow-sm transition"></button>
-                    <button class="win-min-btn w-3.5 h-3.5 rounded-full bg-yellow-400 hover:bg-yellow-500 border border-yellow-500/20 shadow-sm transition"></button>
-                    <button class="win-max-btn w-3.5 h-3.5 rounded-full bg-green-400 hover:bg-green-500 border border-green-500/20 shadow-sm transition"></button>
-                </div>
-            </div>
-            <div class="window-body flex-1 bg-white/80 relative overflow-hidden flex flex-col">
-            </div>
-            <div class="resize-handle absolute bottom-0 left-0 w-4 h-4 cursor-sw-resize z-50"></div>
+            
+                
+                    
+                    
+                    
+                    
+                
+            
+            
+            
+            
         `;
 
         this.windowArea.appendChild(winEl);
         
+        requestAnimationFrame(() => {
+            winEl.style.transform = 'scale(1)';
+            winEl.style.opacity = '1';
+        });
+
         if (appConfig.render) {
             const body = winEl.querySelector('.window-body');
             body.appendChild(appConfig.render());
@@ -58,11 +62,11 @@ export class WindowManager {
     createTaskbarItem(winId, appConfig) {
         const item = document.createElement('button');
         item.id = `taskbar-${winId}`;
-        item.className = 'w-11 h-11 rounded-xl hover:bg-white/20 bg-white/10 flex items-center justify-center transition shadow-sm border border-white/10 relative group';
+        item.className = 'w-12 h-12 rounded-xl hover:bg-white/20 bg-white/10 flex items-center justify-center transition shadow-sm border border-white/10 relative group active:scale-95';
         item.title = appConfig.title;
         item.innerHTML = `
-            <i data-lucide="${appConfig.icon}" class="w-6 h-6 group-hover:-translate-y-1 transition duration-200"></i>
-            <div class="absolute bottom-1 w-1 h-1 bg-white rounded-full"></div>
+            <i data-lucide="${appConfig.icon}" class="w-6 h-6 group-hover:-translate-y-1 drop-shadow-md transition duration-200">
+            
         `;
         
         item.addEventListener('click', () => {
@@ -96,9 +100,13 @@ export class WindowManager {
         winEl.addEventListener('mousedown', () => this.focusWindow(winEl));
 
         closeBtn.addEventListener('click', () => {
-            winEl.remove();
-            document.getElementById(`taskbar-${winId}`).remove();
-            this.windows = this.windows.filter(w => w.id !== winId);
+            winEl.style.transform = 'scale(0.95)';
+            winEl.style.opacity = '0';
+            setTimeout(() => {
+                winEl.remove();
+                document.getElementById(`taskbar-${winId}`).remove();
+                this.windows = this.windows.filter(w => w.id !== winId);
+            }, 200);
         });
 
         minBtn.addEventListener('click', () => {
@@ -183,9 +191,9 @@ export class WindowManager {
             const dx = e.clientX - startX;
             const dy = e.clientY - startY;
             
-            winEl.style.width = `${startWidth - dx}px`;
+            winEl.style.width = `${Math.max(300, startWidth - dx)}px`;
             winEl.style.left = `${startLeft + dx}px`;
-            winEl.style.height = `${startHeight + dy}px`;
+            winEl.style.height = `${Math.max(250, startHeight + dy)}px`;
         });
 
         document.addEventListener('mouseup', () => {

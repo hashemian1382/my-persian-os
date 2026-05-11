@@ -18,12 +18,12 @@ class OS {
         
         this.appRegistry = {
             'terminal': TerminalApp,
+            'explorer': ExplorerApp,
             'notepad': NotepadApp,
             'paint': PaintApp,
             'calculator': CalculatorApp,
-            'settings': SettingsApp,
             'xo': XoApp,
-            'explorer': ExplorerApp
+            'settings': SettingsApp
         };
         
         this.initTaskbar();
@@ -52,10 +52,10 @@ class OS {
         const updateClock = () => {
             const now = new Date();
             const time = now.toLocaleTimeString('fa-IR', { hour: '2-digit', minute: '2-digit' });
-            const date = now.toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
+            const date = now.toLocaleDateString('fa-IR', { year: 'numeric', month: 'short', day: 'numeric' });
             
             clockEl.innerHTML = `
-                <span class="font-bold text-[14px] leading-tight">${time}
+                <span class="font-bold text-[15px] tracking-wide drop-shadow-md leading-tight">${time}
                 ${date}</span>
             `;
         };
@@ -65,9 +65,57 @@ class OS {
 
     setupStartMenu() {
         const startBtn = document.getElementById('start-btn');
-        startBtn.addEventListener('click', () => {
-            this.openApp('settings');
+        const startMenu = document.getElementById('start-menu');
+        const appsContainer = document.getElementById('start-menu-apps');
+
+        appsContainer.innerHTML = '';
+        Object.keys(this.appRegistry).forEach(appId => {
+            const appInstance = new this.appRegistry[appId](this);
+            const btn = document.createElement('button');
+            btn.className = 'flex flex-col items-center gap-2 p-2 rounded-xl hover:bg-blue-50/80 transition group active:scale-95 border border-transparent hover:border-blue-100';
+            btn.innerHTML = `
+                <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-600 flex items-center justify-center group-hover:shadow-md group-hover:-translate-y-1 transition duration-200">
+                    <i data-lucide="${appInstance.icon}" class="w-6 h-6">
+                
+                ${appInstance.title.split(' ')[0]}</span>
+            `;
+            btn.onclick = () => {
+                this.openApp(appId);
+                this.toggleStartMenu(false);
+            };
+            appsContainer.appendChild(btn);
         });
+
+        if (window.lucide) window.lucide.createIcons();
+
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.toggleStartMenu();
+        });
+
+        document.addEventListener('click', (e) => {
+            if (!startMenu.contains(e.target) && !startBtn.contains(e.target)) {
+                this.toggleStartMenu(false);
+            }
+        });
+    }
+
+    toggleStartMenu(forceState) {
+        const menu = document.getElementById('start-menu');
+        const isHidden = menu.classList.contains('opacity-0');
+        const show = forceState !== undefined ? forceState : isHidden;
+        
+        if (show) {
+            menu.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                menu.classList.remove('translate-y-10', 'opacity-0');
+                menu.classList.add('translate-y-0', 'opacity-100');
+            });
+        } else {
+            menu.classList.remove('translate-y-0', 'opacity-100');
+            menu.classList.add('translate-y-10', 'opacity-0');
+            setTimeout(() => menu.classList.add('hidden'), 300);
+        }
     }
 }
 
