@@ -33,7 +33,7 @@ class OS {
     openApp(appId, fileData = null) {
         const AppClass = this.appRegistry[appId];
         if (AppClass) {
-            const appInstance = new AppClass();
+            const appInstance = new AppClass(this);
             if (appInstance.loadFile && fileData) {
                 appInstance.loadFile(fileData);
             }
@@ -55,8 +55,8 @@ class OS {
             const date = now.toLocaleDateString('fa-IR', { year: 'numeric', month: 'long', day: 'numeric' });
             
             clockEl.innerHTML = `
-                <span class="font-bold text-[14px] leading-tight">${time}</span>
-                <span class="text-[10px] text-gray-300 opacity-90">${date}</span>
+                <span class="font-bold text-[14px] leading-tight">${time}
+                ${date}</span>
             `;
         };
         updateClock();

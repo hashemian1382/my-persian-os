@@ -125,4 +125,23 @@ export class FileSystem {
         }
         return null;
     }
+
+    getChildByName(parentId, name) {
+        const parent = this.findNode(this.tree, parentId);
+        if (!parent || !parent.children) return null;
+        return parent.children.find(child => {
+            const childName = child.type === 'file' ? `${child.name}.${child.extension}` : child.name;
+            return childName === name;
+        });
+    }
+
+    getPathString(nodeId) {
+        let path = '';
+        let current = this.findNode(this.tree, nodeId);
+        while (current && current.id !== 'root') {
+            path = current.name + (path ? '/' + path : '');
+            current = this.findParent(this.tree, current.id);
+        }
+        return path || '/';
+    }
 }
