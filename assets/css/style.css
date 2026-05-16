@@ -1593,7 +1593,7 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #94a3b8;
+  background: #3b82f6;
   border-radius: 10px;
 }
 ::-webkit-scrollbar-thumb:hover {
